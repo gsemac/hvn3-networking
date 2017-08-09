@@ -33,6 +33,11 @@ namespace hvn3 {
 			return Net::IPAddress(_address);
 
 		}
+		unsigned int IPEndPoint::Address() const {
+
+			return _address;
+
+		}
 		unsigned short IPEndPoint::Port() const {
 
 			return _port;

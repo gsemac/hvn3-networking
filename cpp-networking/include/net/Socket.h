@@ -87,8 +87,8 @@ namespace hvn3 {
 
 				void Close();
 
-				bool Socket::SendTo(const IPEndPoint& destination, const void* buffer, int length) const;
-				int Socket::ReceiveFrom(IPEndPoint& sender, void* buffer, int length) const;
+				int SendTo(const IPEndPoint& destination, const void* buffer, int length) const;
+				int ReceiveFrom(IPEndPoint& sender, void* buffer, int length) const;
 
 				AddressFamily AddressFamily() const;
 				SocketType SocketType() const;

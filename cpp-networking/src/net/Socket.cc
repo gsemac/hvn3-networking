@@ -9,6 +9,7 @@
 
 #ifdef OS_WINDOWS
 #include <winsock2.h>
+typedef int socklen_t;
 #pragma comment(lib, "ws2_32.lib")
 #else
 #include <sys/socket.h>
@@ -229,7 +230,7 @@ namespace hvn3 {
 
 				sockaddr_in address;
 				address.sin_family = AF_INET;
-				address.sin_addr.s_addr = local_endpoint.IPAddress().Address();
+				address.sin_addr.s_addr = local_endpoint.Address();
 				address.sin_port = htons(local_endpoint.Port());
 
 				if (bind(_handle, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0) {
@@ -278,6 +279,47 @@ namespace hvn3 {
 				_handle = 0;
 				_bound = false;
 				_blocking = false;
+
+			}
+
+			int Socket::SendTo(const IPEndPoint& destination, const void* buffer, int length) const {
+
+				if (buffer == nullptr || length <= 0)
+					return 0;
+
+				if(Handle() <= 0)
+					throw Net::Sockets::SocketException("Socket has not yet been bound to a local endpoint.");
+
+				sockaddr_in address;
+				address.sin_family = getAddressFamily(AddressFamily());
+				address.sin_addr.s_addr = htonl(destination.Address());
+				address.sin_port = htons(destination.Port());
+
+				int bytes_sent = sendto(Handle(), (const char*)buffer, length, 0, (sockaddr*)&address, sizeof(sockaddr_in));
+
+				return bytes_sent;
+
+			}
+			int Socket::ReceiveFrom(IPEndPoint& sender, void* buffer, int length) const {
+
+				if (buffer == nullptr || length <= 0)
+					return 0;
+
+				if (Handle() <= 0)
+					throw Net::Sockets::SocketException("Socket has not yet been bound to a local endpoint.");
+
+				sockaddr_in from;
+				socklen_t from_length = sizeof(from);
+				int bytes_recieved = recvfrom(Handle(), (char*)buffer, length, 0, (sockaddr*)&from, &from_length);
+
+				if (bytes_recieved <= 0)
+					return 0;
+
+				unsigned int address = ntohl(from.sin_addr.s_addr);
+				unsigned int port = ntohs(from.sin_port);
+				sender = IPEndPoint(address, port);
+
+				return bytes_recieved;
 
 			}
 

@@ -13,6 +13,8 @@ namespace hvn3 {
 
 			// Returns IP address of the endpoint.
 			IPAddress IPAddress() const;
+			// Returns integer representation of the address.
+			unsigned int Address() const;
 			// Returns port number of the endpoint.
 			unsigned short Port() const;
 
