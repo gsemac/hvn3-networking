@@ -83,8 +83,12 @@ namespace hvn3 {
 				bool Blocking() const;
 				bool SetBlocking(bool value);
 				bool IsBound() const;
+				int Handle() const;
 
 				void Close();
+
+				bool Socket::SendTo(const IPEndPoint& destination, const void* buffer, int length) const;
+				int Socket::ReceiveFrom(IPEndPoint& sender, void* buffer, int length) const;
 
 				AddressFamily AddressFamily() const;
 				SocketType SocketType() const;
@@ -97,6 +101,7 @@ namespace hvn3 {
 				Sockets::AddressFamily _address_family;
 				Sockets::SocketType _socket_type;
 				Sockets::ProtocolType _protocol_type;
+				IPEndPoint _local_endpoint;
 
 			};
 

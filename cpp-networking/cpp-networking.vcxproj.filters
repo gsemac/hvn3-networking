@@ -24,6 +24,12 @@
     <ClCompile Include="src\net\IPEndPoint.cc">
       <Filter>src\net</Filter>
     </ClCompile>
+    <ClCompile Include="src\net\SocketException.cc">
+      <Filter>src\net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Exception.cc">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\net\Socket.h">
@@ -34,6 +40,12 @@
     </ClInclude>
     <ClInclude Include="include\net\IPAddress.h">
       <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="include\net\SocketException.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Exception.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

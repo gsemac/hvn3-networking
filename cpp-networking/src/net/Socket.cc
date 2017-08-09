@@ -1,5 +1,5 @@
 #include "net/Socket.h"
-#include <exception>
+#include "net/SocketException.h"
 
 #ifdef _WIN32
 #define OS_WINDOWS
@@ -44,9 +44,9 @@ namespace hvn3 {
 	inline void closeSocket(int handle) {
 
 #ifdef OS_WINDOWS
-			closesocket(handle);
+		closesocket(handle);
 #else
-			close(handle);
+		close(handle);
 #endif
 
 	}
@@ -130,7 +130,7 @@ namespace hvn3 {
 			return AF_VOICEVIEW;
 		}
 
-		throw std::exception("Invalid address family");
+		throw Net::Sockets::SocketException("Invalid or unsupported address family.");
 
 	}
 	int getSocketType(Net::Sockets::SocketType st) {
@@ -150,7 +150,7 @@ namespace hvn3 {
 			return SOCK_STREAM;
 		}
 
-		throw std::exception("Invalid socket type");
+		throw Net::Sockets::SocketException("Invalid or unsupported socket type.");
 
 	}
 	int getProtocolType(Net::Sockets::ProtocolType pt) {
@@ -182,14 +182,15 @@ namespace hvn3 {
 			return IPPROTO_UDP;
 		}
 
-		throw std::exception("Invalid or unsupported protocol type");
+		throw Net::Sockets::SocketException("Invalid or unsupported protocol type.");
 
 	}
 
 	namespace Net {
 		namespace Sockets {
 
-			Socket::Socket(Sockets::AddressFamily address_family, Sockets::SocketType socket_type, Sockets::ProtocolType protocol_type) {
+			Socket::Socket(Sockets::AddressFamily address_family, Sockets::SocketType socket_type, Sockets::ProtocolType protocol_type) :
+				_local_endpoint(0, 0) {
 
 				_handle = 0;
 				_blocking = true;
@@ -197,6 +198,8 @@ namespace hvn3 {
 				_address_family = address_family;
 				_socket_type = socket_type;
 				_protocol_type = protocol_type;
+
+				initializeSockets();
 
 			}
 			Socket::~Socket() {
@@ -214,7 +217,8 @@ namespace hvn3 {
 			}
 			bool Socket::Bind(const IPEndPoint& local_endpoint) {
 
-				initializeSockets();
+				if (IsBound())
+					throw Net::Sockets::SocketException("Socket is already bound.");
 
 				_handle = getSocketHandle(getAddressFamily(_address_family), getSocketType(_socket_type), getProtocolType(_protocol_type));
 
@@ -222,7 +226,7 @@ namespace hvn3 {
 					_handle = 0;
 					return false;
 				}
-				
+
 				sockaddr_in address;
 				address.sin_family = AF_INET;
 				address.sin_addr.s_addr = local_endpoint.IPAddress().Address();
@@ -234,16 +238,21 @@ namespace hvn3 {
 				}
 
 				_bound = true;
+				_local_endpoint = local_endpoint;
+
 				return _bound;
 
 			}
-			
+
 			bool Socket::Blocking() const {
 
 				return _blocking;
 
 			}
 			bool Socket::SetBlocking(bool value) {
+
+				if (Handle() <= 0)
+					throw Net::Sockets::SocketException("Socket has not yet been bound to a local endpoint.");
 
 				_blocking = setBlocking(_handle, value);
 
@@ -255,16 +264,21 @@ namespace hvn3 {
 				return _bound;
 
 			}
+			int Socket::Handle() const {
+
+				return _handle;
+
+			}
 
 			void Socket::Close() {
 
 				if (_handle > 0)
 					closeSocket(_handle);
-				
+
 				_handle = 0;
 				_bound = false;
 				_blocking = false;
-				
+
 			}
 
 			AddressFamily Socket::AddressFamily() const {
