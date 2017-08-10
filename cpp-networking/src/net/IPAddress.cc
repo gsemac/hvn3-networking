@@ -31,6 +31,11 @@ namespace hvn3 {
 			return IPAddress(127, 0, 0, 1);
 
 		}
+		IPAddress IPAddress::Any() {
+
+			return IPAddress(0, 0, 0, 0);
+
+		}
 
 		unsigned int IPAddress::Address() const {
 

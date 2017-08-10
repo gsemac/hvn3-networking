@@ -14,6 +14,7 @@ namespace hvn3 {
 
 			// Returns object representing the address 127.0.0.1.
 			static IPAddress LocalHost();
+			static IPAddress Any();
 
 			// Returns integer representation of the address.
 			unsigned int Address() const;
