@@ -75,6 +75,7 @@ namespace hvn3 {
 			public:
 				Socket(AddressFamily address_family, SocketType socket_type, ProtocolType protocol_type);
 				//Socket(SocketType socket_type, ProtocolType protocol_type);
+				Socket(Socket&& other);
 				~Socket();
 
 				bool Bind(unsigned short port);
@@ -83,25 +84,33 @@ namespace hvn3 {
 				bool Blocking() const;
 				bool SetBlocking(bool value);
 				bool IsBound() const;
+				bool Connected() const;
 				int Handle() const;
 
 				void Close();
 
-				int SendTo(const IPEndPoint& destination, const void* buffer, int length) const;
+				bool Connect(const IPEndPoint& remote_endpoint);
+				bool Listen(int backlog);
+				Socket Accept();
+
+				int SendTo(const IPEndPoint& destination, const void* buffer, int length);
 				int ReceiveFrom(IPEndPoint& sender, void* buffer, int length) const;
 
 				AddressFamily AddressFamily() const;
 				SocketType SocketType() const;
 				ProtocolType ProtocolType() const;
+				const IPEndPoint& LocalEndPoint() const;
 
 			private:
 				int _handle;
 				bool _blocking;
 				bool _bound;
+				bool _connected;
 				Sockets::AddressFamily _address_family;
 				Sockets::SocketType _socket_type;
 				Sockets::ProtocolType _protocol_type;
 				IPEndPoint _local_endpoint;
+				IPEndPoint _remote_endpoint;
 
 			};
 

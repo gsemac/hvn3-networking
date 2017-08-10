@@ -20,6 +20,10 @@ typedef int socklen_t;
 
 namespace hvn3 {
 
+	enum : unsigned short {
+		PORT_ANY = 0U
+	};
+
 	inline bool initializeSockets() {
 
 #ifdef OS_WINDOWS
@@ -191,16 +195,29 @@ namespace hvn3 {
 		namespace Sockets {
 
 			Socket::Socket(Sockets::AddressFamily address_family, Sockets::SocketType socket_type, Sockets::ProtocolType protocol_type) :
-				_local_endpoint(0, 0) {
+				_local_endpoint(0, 0),
+				_remote_endpoint(0, 0) {
 
 				_handle = 0;
 				_blocking = true;
 				_bound = false;
+				_connected = false;
 				_address_family = address_family;
 				_socket_type = socket_type;
 				_protocol_type = protocol_type;
 
 				initializeSockets();
+
+			}
+			Socket::Socket(Socket&& other) :
+				Socket(other.AddressFamily(), other.SocketType(), other.ProtocolType()) {
+
+				_handle = other._handle;
+				_blocking = other._blocking;
+				_bound = other._bound;
+				_connected = other._connected;
+				_local_endpoint = other._local_endpoint;
+				_remote_endpoint = other._remote_endpoint;
 
 			}
 			Socket::~Socket() {
@@ -219,7 +236,7 @@ namespace hvn3 {
 			bool Socket::Bind(const IPEndPoint& local_endpoint) {
 
 				if (IsBound())
-					throw Net::Sockets::SocketException("Socket is already bound.");
+					throw Net::Sockets::SocketException("Socket is already bound to a local endpoint.");
 
 				_handle = getSocketHandle(getAddressFamily(_address_family), getSocketType(_socket_type), getProtocolType(_protocol_type));
 
@@ -229,7 +246,7 @@ namespace hvn3 {
 				}
 
 				sockaddr_in address;
-				address.sin_family = AF_INET;
+				address.sin_family = getAddressFamily(AddressFamily());
 				address.sin_addr.s_addr = local_endpoint.Address();
 				address.sin_port = htons(local_endpoint.Port());
 
@@ -265,6 +282,11 @@ namespace hvn3 {
 				return _bound;
 
 			}
+			bool Socket::Connected() const {
+
+				return _connected;
+
+			}
 			int Socket::Handle() const {
 
 				return _handle;
@@ -282,13 +304,63 @@ namespace hvn3 {
 
 			}
 
-			int Socket::SendTo(const IPEndPoint& destination, const void* buffer, int length) const {
+			bool Socket::Connect(const IPEndPoint& remote_endpoint) {
+
+				if (!IsBound() && !Bind(PORT_ANY))
+					return false;
+
+				sockaddr_in address;
+				address.sin_family = getAddressFamily(AddressFamily());
+				address.sin_addr.s_addr = remote_endpoint.Address();
+				address.sin_port = htons(remote_endpoint.Port());
+
+				if (connect(Handle(), (const sockaddr*)&address, sizeof(sockaddr_in)) < 0)
+					return false;
+
+				_remote_endpoint = remote_endpoint;
+				_connected = true;
+
+			}
+			bool Socket::Listen(int backlog) {
+
+				if (!IsBound() && !Bind(PORT_ANY))
+					return false;
+
+				return listen(Handle(), backlog) == 0;
+
+			}
+			Socket Socket::Accept() {
+				
+				sockaddr_in from;
+				socklen_t from_length = sizeof(from);
+
+				int accepted_handle = accept(Handle(), (sockaddr*)&from, &from_length);
+
+				if (accepted_handle != 0)
+					throw SocketException("Error occurred when attempting to accept new socket connection.");
+				
+				unsigned int address = ntohl(from.sin_addr.s_addr);
+				unsigned int port = ntohs(from.sin_port);
+
+				Socket new_socket(AddressFamily(), SocketType(), ProtocolType());
+				new_socket._handle = accepted_handle;
+				new_socket.SetBlocking(Blocking());
+				new_socket._bound = true;
+				new_socket._connected = true;
+				new_socket._local_endpoint = LocalEndPoint();
+				new_socket._remote_endpoint = IPEndPoint(address, port);
+				
+				return new_socket;
+
+			}
+
+			int Socket::SendTo(const IPEndPoint& destination, const void* buffer, int length) {
 
 				if (buffer == nullptr || length <= 0)
 					return 0;
 
-				if(Handle() <= 0)
-					throw Net::Sockets::SocketException("Socket has not yet been bound to a local endpoint.");
+				if (!IsBound() && !Bind(PORT_ANY))
+					return 0;
 
 				sockaddr_in address;
 				address.sin_family = getAddressFamily(AddressFamily());
@@ -310,6 +382,7 @@ namespace hvn3 {
 
 				sockaddr_in from;
 				socklen_t from_length = sizeof(from);
+
 				int bytes_recieved = recvfrom(Handle(), (char*)buffer, length, 0, (sockaddr*)&from, &from_length);
 
 				if (bytes_recieved <= 0)
@@ -336,6 +409,11 @@ namespace hvn3 {
 			ProtocolType Socket::ProtocolType() const {
 
 				return _protocol_type;
+
+			}
+			const IPEndPoint& Socket::LocalEndPoint() const {
+
+				return _local_endpoint;
 
 			}
 
