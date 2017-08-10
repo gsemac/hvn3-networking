@@ -10,7 +10,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Tests.cc">
+    <ClCompile Include="SocketTests.cc">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

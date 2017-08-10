@@ -230,7 +230,7 @@ namespace hvn3 {
 
 			bool Socket::Bind(unsigned short port) {
 
-				Bind(IPEndPoint(INADDR_ANY, port));
+				return Bind(IPEndPoint(INADDR_ANY, port));
 
 			}
 			bool Socket::Bind(const IPEndPoint& local_endpoint) {
@@ -319,6 +319,8 @@ namespace hvn3 {
 
 				_remote_endpoint = remote_endpoint;
 				_connected = true;
+
+				return _connected;
 
 			}
 			bool Socket::Listen(int backlog) {
