@@ -20,10 +20,6 @@ typedef int socklen_t;
 
 namespace hvn3 {
 
-	enum : unsigned short {
-		PORT_ANY = 0U
-	};
-
 	inline bool initializeSockets() {
 
 #ifdef OS_WINDOWS

@@ -70,6 +70,10 @@ namespace hvn3 {
 				Unspecified
 			};
 
+			enum : unsigned short {
+				PORT_ANY = 0U
+			};
+
 			class Socket {
 
 			public:

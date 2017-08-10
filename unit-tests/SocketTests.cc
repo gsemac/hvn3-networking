@@ -13,7 +13,7 @@ public:
 
 		Socket socket(AddressFamily::InterNetwork, SocketType::Dgram, ProtocolType::Udp);
 
-		bool bind_success = socket.Bind(0);
+		bool bind_success = socket.Bind(PORT_ANY);
 
 		Assert::IsTrue(bind_success);
 
