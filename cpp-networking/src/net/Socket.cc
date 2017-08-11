@@ -204,7 +204,7 @@ namespace hvn3 {
 
 				if (_handle <= 0) {
 					_handle = 0;
-					throw Net::Sockets::SocketException("Failed to get socket handle from operating system.");
+					throw Net::Sockets::SocketException("Failed to obtain a socket handle from the operating system.");
 				}
 
 			}
@@ -289,7 +289,7 @@ namespace hvn3 {
 			bool Socket::SetBlocking(bool value) {
 
 				if (Handle() <= 0)
-					throw Net::Sockets::SocketException("Socket handle has not been created.");
+					throw Net::Sockets::SocketException("Socket handle has not been obtained.");
 
 				_blocking = setBlocking(_handle, value);
 
