@@ -8,6 +8,9 @@
 namespace hvn3 {
 	namespace Net {
 
+		IPAddress::IPAddress() :
+			IPAddress(0, 0, 0, 0) {
+		}
 		IPAddress::IPAddress(unsigned char a, unsigned char b, unsigned char c, unsigned char d) {
 
 			_address = (a << 24) | (b << 16) | (c << 8) | d;

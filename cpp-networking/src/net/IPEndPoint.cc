@@ -7,6 +7,9 @@
 namespace hvn3 {
 	namespace Net {
 
+		IPEndPoint::IPEndPoint() :
+			IPEndPoint(0, 0) {
+		}
 		IPEndPoint::IPEndPoint(const Net::IPAddress& address, unsigned short port) {
 
 			_address = address.Address();

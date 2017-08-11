@@ -8,6 +8,7 @@ namespace hvn3 {
 		class IPAddress {
 
 		public:
+			IPAddress();
 			IPAddress(unsigned char a, unsigned char b, unsigned char c, unsigned char d);
 			IPAddress(unsigned int address);
 			IPAddress(const char* address);

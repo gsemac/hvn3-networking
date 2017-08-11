@@ -190,23 +190,27 @@ namespace hvn3 {
 	namespace Net {
 		namespace Sockets {
 
-			Socket::Socket(Sockets::AddressFamily address_family, Sockets::SocketType socket_type, Sockets::ProtocolType protocol_type) :
-				_local_endpoint(0, 0),
-				_remote_endpoint(0, 0) {
+			Socket::Socket(Sockets::AddressFamily address_family, Sockets::SocketType socket_type, Sockets::ProtocolType protocol_type) {
 
-				_handle = 0;
-				_blocking = true;
-				_bound = false;
-				_connected = false;
+				_initializeMembers();
+
 				_address_family = address_family;
 				_socket_type = socket_type;
 				_protocol_type = protocol_type;
 
 				initializeSockets();
 
+				_handle = getSocketHandle(getAddressFamily(_address_family), getSocketType(_socket_type), getProtocolType(_protocol_type));
+
+				if (_handle <= 0) {
+					_handle = 0;
+					throw Net::Sockets::SocketException("Failed to get socket handle from operating system.");
+				}
+
 			}
-			Socket::Socket(Socket&& other) :
-				Socket(other.AddressFamily(), other.SocketType(), other.ProtocolType()) {
+			Socket::Socket(Socket&& other) {
+
+				_initializeMembers();
 
 				_handle = other._handle;
 				_blocking = other._blocking;
@@ -214,6 +218,12 @@ namespace hvn3 {
 				_connected = other._connected;
 				_local_endpoint = other._local_endpoint;
 				_remote_endpoint = other._remote_endpoint;
+				_address_family = other._address_family;
+				_socket_type = other._socket_type;
+				_protocol_type = other._protocol_type;
+
+				// Reset members of the other object (avoids closing socket twice).
+				other._initializeMembers();
 
 			}
 			Socket::~Socket() {
@@ -234,8 +244,6 @@ namespace hvn3 {
 				if (IsBound())
 					throw Net::Sockets::SocketException("Socket is already bound to a local endpoint.");
 
-				_handle = getSocketHandle(getAddressFamily(_address_family), getSocketType(_socket_type), getProtocolType(_protocol_type));
-
 				if (_handle <= 0) {
 					_handle = 0;
 					return false;
@@ -255,12 +263,12 @@ namespace hvn3 {
 
 					// If bound to an OS-assigned port, get the the port that was assigned.
 					socklen_t addr_length = sizeof(address);
-					
+
 					if (getsockname(_handle, (struct sockaddr*)&address, &addr_length) != 0) {
 						Close();
 						return false;
 					}
-					
+
 					_local_endpoint = IPEndPoint(local_endpoint.Address(), ntohs(address.sin_port));
 
 				}
@@ -281,7 +289,7 @@ namespace hvn3 {
 			bool Socket::SetBlocking(bool value) {
 
 				if (Handle() <= 0)
-					throw Net::Sockets::SocketException("Socket has not yet been bound to a local endpoint.");
+					throw Net::Sockets::SocketException("Socket handle has not been created.");
 
 				_blocking = setBlocking(_handle, value);
 
@@ -309,9 +317,7 @@ namespace hvn3 {
 				if (_handle > 0)
 					closeSocket(_handle);
 
-				_handle = 0;
-				_bound = false;
-				_blocking = false;
+				_initializeMembers();
 
 			}
 
@@ -355,7 +361,10 @@ namespace hvn3 {
 				unsigned int address = ntohl(from.sin_addr.s_addr);
 				unsigned int port = ntohs(from.sin_port);
 
-				Socket new_socket(AddressFamily(), SocketType(), ProtocolType());
+				Socket new_socket;
+				new_socket._address_family = AddressFamily();
+				new_socket._socket_type = SocketType();
+				new_socket._protocol_type = ProtocolType();
 				new_socket._handle = accepted_handle;
 				new_socket.SetBlocking(Blocking());
 				new_socket._bound = true;
@@ -432,6 +441,25 @@ namespace hvn3 {
 			const IPEndPoint& Socket::LocalEndPoint() const {
 
 				return _local_endpoint;
+
+			}
+
+
+			void Socket::_initializeMembers() {
+
+				_handle = 0;
+				_blocking = true;
+				_bound = false;
+				_connected = false;
+
+			}
+
+
+			Socket::Socket() {
+
+				_initializeMembers();
+
+				initializeSockets();
 
 			}
 

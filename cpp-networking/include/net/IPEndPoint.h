@@ -7,6 +7,7 @@ namespace hvn3 {
 		class IPEndPoint {
 
 		public:
+			IPEndPoint();
 			IPEndPoint(const IPAddress& address, unsigned short port);
 			IPEndPoint(unsigned int address, unsigned short port);
 			IPEndPoint(const char* address);

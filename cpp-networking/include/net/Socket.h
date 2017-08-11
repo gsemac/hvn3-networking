@@ -105,7 +105,12 @@ namespace hvn3 {
 				ProtocolType ProtocolType() const;
 				const IPEndPoint& LocalEndPoint() const;
 
+			protected:
+				void _initializeMembers();
+
 			private:
+				Socket();
+
 				int _handle;
 				bool _blocking;
 				bool _bound;
