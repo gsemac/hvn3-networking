@@ -243,7 +243,7 @@ namespace hvn3 {
 
 				sockaddr_in address;
 				address.sin_family = getAddressFamily(AddressFamily());
-				address.sin_addr.s_addr = local_endpoint.Address();
+				address.sin_addr.s_addr = htonl(local_endpoint.Address());
 				address.sin_port = htons(local_endpoint.Port());
 
 				if (bind(_handle, (const sockaddr*)&address, sizeof(sockaddr_in)) < 0) {
@@ -251,8 +251,23 @@ namespace hvn3 {
 					return false;
 				}
 
+				if (local_endpoint.Port() == PORT_ANY) {
+
+					// If bound to an OS-assigned port, get the the port that was assigned.
+					socklen_t addr_length = sizeof(address);
+					
+					if (getsockname(_handle, (struct sockaddr*)&address, &addr_length) != 0) {
+						Close();
+						return false;
+					}
+					
+					_local_endpoint = IPEndPoint(local_endpoint.Address(), ntohs(address.sin_port));
+
+				}
+				else
+					_local_endpoint = local_endpoint;
+
 				_bound = true;
-				_local_endpoint = local_endpoint;
 
 				return _bound;
 
@@ -307,7 +322,7 @@ namespace hvn3 {
 
 				sockaddr_in address;
 				address.sin_family = getAddressFamily(AddressFamily());
-				address.sin_addr.s_addr = remote_endpoint.Address();
+				address.sin_addr.s_addr = htonl(remote_endpoint.Address());
 				address.sin_port = htons(remote_endpoint.Port());
 
 				if (connect(Handle(), (const sockaddr*)&address, sizeof(sockaddr_in)) < 0)
@@ -328,7 +343,7 @@ namespace hvn3 {
 
 			}
 			Socket Socket::Accept() {
-				
+
 				sockaddr_in from;
 				socklen_t from_length = sizeof(from);
 
@@ -336,7 +351,7 @@ namespace hvn3 {
 
 				if (accepted_handle != 0)
 					throw SocketException("Error occurred when attempting to accept new socket connection.");
-				
+
 				unsigned int address = ntohl(from.sin_addr.s_addr);
 				unsigned int port = ntohs(from.sin_port);
 
@@ -347,7 +362,7 @@ namespace hvn3 {
 				new_socket._connected = true;
 				new_socket._local_endpoint = LocalEndPoint();
 				new_socket._remote_endpoint = IPEndPoint(address, port);
-				
+
 				return new_socket;
 
 			}
@@ -360,9 +375,14 @@ namespace hvn3 {
 				if (!IsBound() && !Bind(PORT_ANY))
 					return 0;
 
+				// If the destination IP is 0.0.0.0, send the data to localhost.
+				unsigned int destination_address = destination.Address();
+				if (destination_address == 0)
+					destination_address = IPAddress::LocalHost().Address();
+
 				sockaddr_in address;
 				address.sin_family = getAddressFamily(AddressFamily());
-				address.sin_addr.s_addr = htonl(destination.Address());
+				address.sin_addr.s_addr = htonl(destination_address);
 				address.sin_port = htons(destination.Port());
 
 				int bytes_sent = sendto(Handle(), (const char*)buffer, length, 0, (sockaddr*)&address, sizeof(sockaddr_in));
