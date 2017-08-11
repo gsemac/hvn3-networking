@@ -25,6 +25,7 @@
     <ClCompile Include="src\net\IPEndPoint.cc" />
     <ClCompile Include="src\net\Socket.cc" />
     <ClCompile Include="src\net\SocketException.cc" />
+    <ClCompile Include="src\net\UdpConnection.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Exception.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="include\net\IPEndPoint.h" />
     <ClInclude Include="include\net\Socket.h" />
     <ClInclude Include="include\net\SocketException.h" />
+    <ClInclude Include="include\net\UdpConnection.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8A9A3DAC-FDC2-440F-AD93-D0858F3FBFB3}</ProjectGuid>
