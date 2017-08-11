@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Exception.cc" />
+    <ClCompile Include="src\net\Beacon.cc" />
     <ClCompile Include="src\net\IPAddress.cc" />
     <ClCompile Include="src\net\IPEndPoint.cc" />
     <ClCompile Include="src\net\Socket.cc" />
@@ -27,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Exception.h" />
+    <ClInclude Include="include\net\Beacon.h" />
     <ClInclude Include="include\net\IPAddress.h" />
     <ClInclude Include="include\net\IPEndPoint.h" />
     <ClInclude Include="include\net\Socket.h" />

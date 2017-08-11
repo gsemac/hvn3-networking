@@ -30,6 +30,9 @@
     <ClCompile Include="src\Exception.cc">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\net\Beacon.cc">
+      <Filter>src\net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\net\Socket.h">
@@ -46,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="include\Exception.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\net\Beacon.h">
+      <Filter>include\net</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
