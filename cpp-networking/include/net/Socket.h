@@ -70,6 +70,63 @@ namespace hvn3 {
 				Unspecified
 			};
 
+			enum class SocketOptionLevel {
+				IP,
+				IPv6,
+				Socket,
+				Tcp,
+				Udp
+			};
+
+			enum class SocketOptionName {
+				AcceptConnection,
+				AddMembership,
+				AddSourceMembership,
+				BlockSource,
+				Broadcast,
+				BsdUrgent,
+				ChecksumCoverage,
+				Debug,
+				DontFragment,
+				DontLinger,
+				DontRoute,
+				DropMembership,
+				DropSourceMembership,
+				Error,
+				ExclusiveAddressUse,
+				Expedited,
+				HeaderIncluded,
+				HopLimit,
+				IpOptions,
+				IpProtectionLevel,
+				IpTimeToLive,
+				IPv6Only,
+				KeepAlive,
+				Linger,
+				MaxConnections,
+				MulticastInterface,
+				MulticastLoopback,
+				MulticastTimeToLive,
+				NoChecksum,
+				NoDelay,
+				OutOfBandInline,
+				PacketInformation,
+				ReceiveBuffer,
+				ReceiveLowWater,
+				ReceiveTimeout,
+				ReuseAddress,
+				ReuseUnicastPort,
+				SendBuffer,
+				SendLowWater,
+				SendTimeout,
+				Type,
+				TypeOfService,
+				UnblockSource,
+				UpdateAcceptContext,
+				UpdateConnectContext,
+				UseLoopback
+			};
+
 			enum : unsigned short {
 				PORT_ANY = 0U
 			};
