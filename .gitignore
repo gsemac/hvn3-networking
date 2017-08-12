@@ -210,3 +210,5 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/cpp-networking.VC.db
+/cpp-networking.VC.VC.opendb

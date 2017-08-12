@@ -38,7 +38,9 @@ namespace hvn3 {
 
 	}
 	inline int getSocketHandle(int address_family, int socket_type, int protcol_type) {
-
+		
+		// Even though a socket handle is 64 bits when compiling for x64, the function returns a kernel 
+		// handle which is limited to 32-bits, so it's safe to cast it to a regular integer.
 		return static_cast<int>(::socket(address_family, socket_type, protcol_type));
 
 	}
@@ -353,7 +355,7 @@ namespace hvn3 {
 				sockaddr_in from;
 				socklen_t from_length = sizeof(from);
 
-				int accepted_handle = accept(Handle(), (sockaddr*)&from, &from_length);
+				int accepted_handle = static_cast<int>(accept(Handle(), (sockaddr*)&from, &from_length));
 
 				if (accepted_handle != 0)
 					throw SocketException("Error occurred when attempting to accept new socket connection.");
