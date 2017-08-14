@@ -249,7 +249,7 @@ namespace hvn3 {
 
 			}
 
-			bool Socket::Bind(unsigned short port) {
+			bool Socket::Bind(Port port) {
 
 				return Bind(IPEndPoint(INADDR_ANY, port));
 

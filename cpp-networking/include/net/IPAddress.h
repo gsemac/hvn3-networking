@@ -15,6 +15,9 @@ namespace hvn3 {
 
 			// Returns object representing the address 127.0.0.1.
 			static IPAddress LocalHost();
+			// Returns object representing the address 255.255.255.255.
+			static IPAddress Broadcast();
+			// Returns object representing the address 0.0.0.0.
 			static IPAddress Any();
 
 			// Returns integer representation of the address.

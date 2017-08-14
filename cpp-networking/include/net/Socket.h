@@ -4,7 +4,7 @@
 namespace hvn3 {
 	namespace Net {
 		namespace Sockets {
-
+			
 			enum class AddressFamily {
 				AppleTalk,
 				Atm,
@@ -127,7 +127,9 @@ namespace hvn3 {
 				UseLoopback
 			};
 
-			enum : unsigned short {
+			typedef unsigned short Port;
+
+			enum : Port {
 				PORT_ANY = 0U
 			};
 
@@ -139,7 +141,7 @@ namespace hvn3 {
 				Socket(Socket&& other);
 				~Socket();
 
-				bool Bind(unsigned short port);
+				bool Bind(Port port);
 				bool Bind(const IPEndPoint& local_endpoint);
 
 				int Available() const;

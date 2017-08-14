@@ -34,6 +34,11 @@ namespace hvn3 {
 			return IPAddress(127, 0, 0, 1);
 
 		}
+		IPAddress IPAddress::Broadcast() {
+
+			return IPAddress(255, 255, 255, 255);
+
+		}
 		IPAddress IPAddress::Any() {
 
 			return IPAddress(0, 0, 0, 0);

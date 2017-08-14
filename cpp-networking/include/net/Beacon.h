@@ -1,30 +1,47 @@
 #include "net/Socket.h"
+#include <thread>
+#include <mutex>
+#include <chrono>
 
 // #todo finish implementing this class when more aware of requirements
 
 namespace hvn3 {
+
+	typedef uint8_t Byte;
+
 	namespace Net {
 		namespace Sockets {
 
 			class Beacon {
 
 			public:
-				Beacon(unsigned short beacon_port, unsigned short listener_port);
+				Beacon(Port beacon_port, Port broadcast_port);
 				~Beacon();
 
-				void SetMessage(void* buffer, size_t buffer_length);
-				
-				void Start();
-				void Stop();
-				void Update(float dt);
+				void SetMessage(Byte data[], size_t length);
 
-				bool Broadcasting() const;
+				void StartBroadcasting();
+				void StopBroadcasting();
+				bool IsBroadcasting() const;
+
+				unsigned long MessageDelay() const;
+				void SetMessageDelay(unsigned long value);
+
+			protected:
+				void BroadcastLoop();
 
 			private:
-				char* _buf;
-				size_t _buffer_length;
 				Socket _socket;
+				Byte* _message_buffer;
+				size_t _message_buffer_length;
 				bool _brocasting;
+				Port _beacon_port;
+				Port _broadcast_port;
+
+				std::thread _broadcast_thread;
+				std::mutex _mutex;
+				std::chrono::time_point<std::chrono::steady_clock> _last_broadcast;
+				unsigned long _message_delay;
 
 			};
 
