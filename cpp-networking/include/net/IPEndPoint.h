@@ -13,7 +13,7 @@ namespace hvn3 {
 			IPEndPoint(const char* address);
 
 			// Returns IP address of the endpoint.
-			IPAddress IPAddress() const;
+			Net::IPAddress IPAddress() const;
 			// Returns integer representation of the address.
 			unsigned int Address() const;
 			// Returns port number of the endpoint.

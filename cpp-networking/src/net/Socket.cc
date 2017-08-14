@@ -13,6 +13,7 @@ typedef int socklen_t;
 #pragma comment(lib, "ws2_32.lib")
 #else
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -72,14 +73,25 @@ namespace hvn3 {
 	}
 	bool setEnableBroadcast(int handle, bool value) {
 
+#ifdef OS_WINDOWS
 		char enable_broadcast = value ? 1 : 0;
-		return setsockopt(handle, SOL_SOCKET, SO_BROADCAST, &enable_broadcast, sizeof(enable_broadcast)) == 0;
+#else
+		int enable_broadcast = value ? 1 : 0;
+#endif		
+
+		socklen_t len = sizeof(enable_broadcast);
+		return setsockopt(handle, SOL_SOCKET, SO_BROADCAST, &enable_broadcast, len) == 0;
 
 	}
 	bool getEnableBroadcast(int handle) {
 
+#ifdef OS_WINDOWS
 		char enable_broadcast;
-		int len = sizeof(enable_broadcast);
+#else
+		int enable_broadcast;
+#endif		
+
+		socklen_t len = sizeof(enable_broadcast);
 		if (getsockopt(handle, SOL_SOCKET, SO_BROADCAST, &enable_broadcast, &len) == 0)
 			return enable_broadcast > 0;
 		return false;
@@ -92,6 +104,23 @@ namespace hvn3 {
 		switch (af) {
 		case t::AppleTalk:
 			return AF_APPLETALK;
+		case t::DecNet:
+			return AF_DECnet;
+		case t::InterNetwork:
+			return AF_INET;
+		case t::InterNetworkV6:
+			return AF_INET6;
+		case t::Ipx:
+			return AF_IPX;
+		case t::Irda:
+			return AF_IRDA;
+		case t::Sna:
+			return AF_SNA;
+		case t::Unix:
+			return AF_UNIX;
+		case t::Unspecified:
+			return AF_UNSPEC;
+#ifdef OS_WINDOWS
 		case t::Atm:
 			return AF_ATM;
 		case t::Banyan:
@@ -106,8 +135,6 @@ namespace hvn3 {
 			return AF_DATAKIT;
 		case t::DataLink:
 			return AF_DLI;
-		case t::DecNet:
-			return AF_DECnet;
 		case t::Ecma:
 			return AF_ECMA;
 		case t::HyperChannel:
@@ -116,14 +143,6 @@ namespace hvn3 {
 			return AF_12844;
 		case t::ImpLink:
 			return AF_IMPLINK;
-		case t::InterNetwork:
-			return AF_INET;
-		case t::InterNetworkV6:
-			return AF_INET6;
-		case t::Ipx:
-			return AF_IPX;
-		case t::Irda:
-			return AF_IRDA;
 		case t::Iso:
 			return AF_ISO;
 		case t::Lat:
@@ -138,14 +157,9 @@ namespace hvn3 {
 			return AF_OSI;
 		case t::Pup:
 			return AF_PUP;
-		case t::Sna:
-			return AF_SNA;
-		case t::Unix:
-			return AF_UNIX;
-		case t::Unspecified:
-			return AF_UNSPEC;
 		case t::VoiceView:
 			return AF_VOICEVIEW;
+#endif
 		}
 
 		throw Net::Sockets::SocketException("Invalid or unsupported address family.");
@@ -176,20 +190,14 @@ namespace hvn3 {
 		using t = Net::Sockets::ProtocolType;
 
 		switch (pt) {
-		case t::Ggp:
-			return IPPROTO_GGP;
 		case t::Icmp:
 			return IPPROTO_ICMP;
 		case t::IcmpV6:
 			return IPPROTO_ICMPV6;
 		case t::IP:
 			return IPPROTO_IP;
-		case t::IPv4:
-			return IPPROTO_IPV4;
 		case t::IPv6:
 			return IPPROTO_IPV6;
-		case t::ND:
-			return IPPROTO_ND;
 		case t::Pup:
 			return IPPROTO_PUP;
 		case t::Raw:
@@ -198,6 +206,17 @@ namespace hvn3 {
 			return IPPROTO_TCP;
 		case t::Udp:
 			return IPPROTO_UDP;
+#ifdef OS_WINDOWS
+		case t::Ggp:
+			return IPPROTO_GGP;
+		case t::IPv4:
+			return IPPROTO_IPV4;
+		case t::ND:
+			return IPPROTO_ND;
+#else
+		case t::IPv4:
+			return IPPROTO_IP;
+#endif
 		}
 
 		throw Net::Sockets::SocketException("Invalid or unsupported protocol type.");

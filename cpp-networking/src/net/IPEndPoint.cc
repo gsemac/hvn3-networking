@@ -25,7 +25,7 @@ namespace hvn3 {
 		IPEndPoint::IPEndPoint(const char* address) {
 
 			unsigned short a, b, c, d, e;
-			sscanf_s(address, "%hu.%hu.%hu.%hu:%hu", &a, &b, &c, &d, &e);
+			sscanf(address, "%hu.%hu.%hu.%hu:%hu", &a, &b, &c, &d, &e);
 			_address = (a << 24) | (b << 16) | (c << 8) | d;
 			_port = e;
 

@@ -136,7 +136,7 @@ namespace hvn3 {
 			class Socket {
 
 			public:
-				Socket(AddressFamily address_family, SocketType socket_type, ProtocolType protocol_type);
+				Socket(Sockets::AddressFamily address_family, Sockets::SocketType socket_type, Sockets::ProtocolType protocol_type);
 				//Socket(SocketType socket_type, ProtocolType protocol_type);
 				Socket(Socket&& other);
 				~Socket();
@@ -163,9 +163,9 @@ namespace hvn3 {
 				int SendTo(const IPEndPoint& destination, const void* buffer, int length);
 				int ReceiveFrom(IPEndPoint& sender, void* buffer, int length) const;
 
-				AddressFamily AddressFamily() const;
-				SocketType SocketType() const;
-				ProtocolType ProtocolType() const;
+				Sockets::AddressFamily AddressFamily() const;
+				Sockets::SocketType SocketType() const;
+				Sockets::ProtocolType ProtocolType() const;
 				const IPEndPoint& LocalEndPoint() const;
 
 			protected:
