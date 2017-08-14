@@ -38,7 +38,7 @@ namespace hvn3 {
 
 	}
 	inline int getSocketHandle(int address_family, int socket_type, int protcol_type) {
-		
+
 		// Even though a socket handle is 64 bits when compiling for x64, the function returns a kernel 
 		// handle which is limited to 32-bits, so it's safe to cast it to a regular integer.
 		return static_cast<int>(::socket(address_family, socket_type, protcol_type));
@@ -68,6 +68,21 @@ namespace hvn3 {
 
 		return fcntl(handle, F_SETFL, value ? flags ^ O_NONBLOCK : flags | O_NONBLOCK) == 0;
 #endif
+
+	}
+	bool setEnableBroadcast(int handle, bool value) {
+
+		char enable_broadcast = value ? 1 : 0;
+		return setsockopt(handle, SOL_SOCKET, SO_BROADCAST, &enable_broadcast, sizeof(enable_broadcast)) == 0;
+
+	}
+	bool getEnableBroadcast(int handle) {
+
+		char enable_broadcast;
+		int len = sizeof(enable_broadcast);
+		if (getsockopt(handle, SOL_SOCKET, SO_BROADCAST, &enable_broadcast, &len) == 0)
+			return enable_broadcast > 0;
+		return false;
 
 	}
 	int getAddressFamily(Net::Sockets::AddressFamily af) {
@@ -195,7 +210,7 @@ namespace hvn3 {
 #ifdef OS_WINDOWS
 		ioctlsocket(handle, FIONREAD, &bytes_available);
 #else
-		ioctl(handle, FIONREAD, &bytes_available);		
+		ioctl(handle, FIONREAD, &bytes_available);
 #endif
 
 		return static_cast<int>(bytes_available);
@@ -252,6 +267,11 @@ namespace hvn3 {
 			bool Socket::Bind(Port port) {
 
 				return Bind(IPEndPoint(INADDR_ANY, port));
+
+			}
+			bool Socket::Bind(const IPAddress& address, Port port) {
+
+				return(Bind(IPEndPoint(address, port)));
 
 			}
 			bool Socket::Bind(const IPEndPoint& local_endpoint) {
@@ -311,9 +331,25 @@ namespace hvn3 {
 				if (Handle() <= 0)
 					throw Net::Sockets::SocketException("Socket handle has not been obtained.");
 
-				_blocking = setBlocking(_handle, value);
+				_blocking = setBlocking(Handle(), value);
 
 				return _blocking;
+
+			}
+			bool Socket::EnableBroadcast() const {
+
+				if (Handle() <= 0)
+					return false;
+
+				return getEnableBroadcast(Handle());
+
+			}
+			bool Socket::SetEnableBroadcast(bool value) {
+
+				if (Handle() <= 0)
+					throw Net::Sockets::SocketException("Socket handle has not been obtained.");
+
+				return setEnableBroadcast(Handle(), value);
 
 			}
 			bool Socket::IsBound() const {
@@ -416,7 +452,7 @@ namespace hvn3 {
 
 				int bytes_sent = sendto(Handle(), (const char*)buffer, length, 0, (sockaddr*)&address, sizeof(sockaddr_in));
 
-				return bytes_sent;
+				return bytes_sent < 0 ? 0 : bytes_sent;
 
 			}
 			int Socket::ReceiveFrom(IPEndPoint& sender, void* buffer, int length) const {

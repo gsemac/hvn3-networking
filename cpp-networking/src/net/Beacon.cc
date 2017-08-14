@@ -2,7 +2,6 @@
 #include "net/SocketException.h"
 #include <cstring>
 
-
 namespace hvn3 {
 	namespace Net {
 		namespace Sockets {
@@ -18,20 +17,32 @@ namespace hvn3 {
 
 				_message_delay = 1000;
 
-				if(!_socket.Bind(_beacon_port))
+				if (!_socket.Bind(_beacon_port))
 					throw SocketException("Failed to bind socket.");
+
+				if (!_socket.SetEnableBroadcast(true))
+					throw SocketException("Failed to enable broadcast.");
 
 			}
 			Beacon::~Beacon() {
 
+				if (IsBroadcasting())
+					StopBroadcasting();
+
 				if (_message_buffer != nullptr)
 					delete[] _message_buffer;
-
 				_message_buffer = nullptr;
 				_message_buffer_length = 0;
 
 			}
 
+			void Beacon::SetMessage(const char* message) {
+
+				size_t length = strlen(message) + 1;
+
+				SetMessage((Byte*)message, length);
+
+			}
 			void Beacon::SetMessage(Byte data[], size_t length) {
 
 				std::lock_guard<std::mutex> guard(_mutex);
@@ -39,27 +50,27 @@ namespace hvn3 {
 				_message_buffer = new Byte[length];
 				_message_buffer_length = length;
 
-				memcpy(data, _message_buffer, length);
+				memcpy(_message_buffer, data, length);
 
 			}
 
 			void Beacon::StartBroadcasting() {
 
-				if (_brocasting)
+				if (IsBroadcasting())
 					return;
-				
-				_last_broadcast = std::chrono::steady_clock::now() + std::chrono::milliseconds(_message_delay);
-				_broadcast_thread = std::thread(&BroadcastLoop, this);
+
 				_brocasting = true;
+				_last_broadcast = std::chrono::steady_clock::now() - std::chrono::milliseconds(_message_delay); // Send first message immediately
+				_broadcast_thread = std::thread(&Beacon::BroadcastLoop, this);
 
 			}
 			void Beacon::StopBroadcasting() {
 
-				if (!_brocasting)
+				if (!IsBroadcasting())
 					return;
 
 				_brocasting = false;
-				
+
 				_broadcast_thread.join();
 
 			}
@@ -85,17 +96,19 @@ namespace hvn3 {
 
 			void Beacon::BroadcastLoop() {
 
-				while (IsBroadcasting()) {
+				std::lock_guard<std::mutex> guard(_mutex);
 
-					std::lock_guard<std::mutex> guard(_mutex);
+				while (IsBroadcasting()) {				
 
 					if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - _last_broadcast).count() < _message_delay)
-						continue;					
+						continue;
 
-					if (_socket.SendTo(IPEndPoint(IPAddress::Broadcast(), _beacon_port), _message_buffer, _message_buffer_length) <= 0)
-						throw SocketException("Failed to send broadcast packet.");
+					_last_broadcast = std::chrono::steady_clock::now();
 
-					std::cout << "Broadcasted message...\n";
+					if (_message_buffer_length == 0)
+						continue;
+
+					_socket.SendTo(IPEndPoint(IPAddress::Broadcast(), _broadcast_port), _message_buffer, _message_buffer_length);
 
 				}
 

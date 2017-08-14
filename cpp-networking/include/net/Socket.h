@@ -142,11 +142,14 @@ namespace hvn3 {
 				~Socket();
 
 				bool Bind(Port port);
+				bool Bind(const IPAddress& address, Port port);
 				bool Bind(const IPEndPoint& local_endpoint);
 
 				int Available() const;
 				bool Blocking() const;
 				bool SetBlocking(bool value);
+				bool EnableBroadcast() const;
+				bool SetEnableBroadcast(bool value);
 				bool IsBound() const;
 				bool Connected() const;
 				int Handle() const;

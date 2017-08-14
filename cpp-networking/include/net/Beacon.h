@@ -1,3 +1,4 @@
+#pragma once
 #include "net/Socket.h"
 #include <thread>
 #include <mutex>
@@ -18,6 +19,7 @@ namespace hvn3 {
 				Beacon(Port beacon_port, Port broadcast_port);
 				~Beacon();
 
+				void SetMessage(const char* message);
 				void SetMessage(Byte data[], size_t length);
 
 				void StartBroadcasting();
