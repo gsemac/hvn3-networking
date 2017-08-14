@@ -188,6 +188,19 @@ namespace hvn3 {
 		throw Net::Sockets::SocketException("Invalid or unsupported protocol type.");
 
 	}
+	int getBytesAvailable(int handle) {
+
+		unsigned long bytes_available = 0;
+
+#ifdef OS_WINDOWS
+		ioctlsocket(handle, FIONREAD, &bytes_available);
+#else
+		ioctl(handle, FIONREAD, &bytes_available);		
+#endif
+
+		return static_cast<int>(bytes_available);
+
+	}
 
 	namespace Net {
 		namespace Sockets {
@@ -283,6 +296,11 @@ namespace hvn3 {
 
 			}
 
+			int Socket::Available() const {
+
+				return getBytesAvailable(_handle);
+
+			}
 			bool Socket::Blocking() const {
 
 				return _blocking;

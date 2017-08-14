@@ -142,6 +142,7 @@ namespace hvn3 {
 				bool Bind(unsigned short port);
 				bool Bind(const IPEndPoint& local_endpoint);
 
+				int Available() const;
 				bool Blocking() const;
 				bool SetBlocking(bool value);
 				bool IsBound() const;
