@@ -27,6 +27,7 @@ namespace hvn3 {
 
 			public:
 				UdpConnection(const IPEndPoint& local_endpoint);
+				UdpConnection(Port local_port);
 				virtual ~UdpConnection() = default;
 
 				void Listen();

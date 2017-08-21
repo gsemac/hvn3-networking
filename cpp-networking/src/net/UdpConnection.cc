@@ -10,6 +10,11 @@ namespace hvn3 {
 				_state = IDLE;
 				_mode = NONE;
 
+				_socket.Bind(local_endpoint);
+
+			}
+			UdpConnection::UdpConnection(Port local_port) : 
+				UdpConnection(IPEndPoint(IPAddress::LocalHost(), local_port)) {
 			}
 
 			void UdpConnection::Listen() {

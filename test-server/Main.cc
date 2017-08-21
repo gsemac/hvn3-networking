@@ -1,29 +1,18 @@
 #include "net/Socket.h"
 #include "net/Beacon.h"
+#include "net/UdpConnection.h"
+#include <cassert>
 using namespace hvn3;
 using namespace hvn3::Net;
 using namespace hvn3::Net::Sockets;
 
 void UdpSocketSendAndReceiveExample();
+void UdpBeaconExample();
+void UdpConnectionExample();
 
 int main(int argc, char* argv[]) {
 
-	Socket listener(AddressFamily::InterNetwork, SocketType::Dgram, ProtocolType::Udp);
-	listener.Bind(25565);
-	listener.SetBlocking(false);
-	listener.SetEnableBroadcast(true);
-
-	Beacon beacon(PORT_ANY, 25565);
-	beacon.SetMessage("Hello, world!");
-	beacon.SetMessageDelay(1000);
-	beacon.StartBroadcasting();
-
-	while (1) {
-		IPEndPoint sender;
-		Byte buf[256];
-		if (listener.ReceiveFrom(sender, buf, sizeof(buf)) > 0)
-			std::cout << "Received '" << buf << "' from " << sender << '\n';
-	}
+	UdpConnectionExample();
 
 	getchar();
 
@@ -58,3 +47,54 @@ void UdpSocketSendAndReceiveExample() {
 	std::cout << "Message received: " << buf << '\n';
 
 }
+void UdpBeaconExample() {
+
+	Socket listener(AddressFamily::InterNetwork, SocketType::Dgram, ProtocolType::Udp);
+	listener.Bind(25565);
+	listener.SetBlocking(false);
+	listener.SetEnableBroadcast(true);
+
+	Beacon beacon(PORT_ANY, 25565);
+	beacon.SetMessage("Hello, world!");
+	beacon.SetMessageDelay(1000);
+	beacon.StartBroadcasting();
+
+	while (1) {
+		IPEndPoint sender;
+		Byte buf[256];
+		if (listener.ReceiveFrom(sender, buf, sizeof(buf)) > 0)
+			std::cout << "Received '" << buf << "' from " << sender << '\n';
+	}
+
+}
+void UdpConnectionExample() {
+
+	UdpConnection server_conn(25565);
+	server_conn.Listen();
+
+	assert(server_conn.IsListening());
+	std::cout << "Server is listening for connection attempts.\n";
+
+	UdpConnection client_conn(PORT_ANY);
+	client_conn.Connect(server_conn.LocalEndPoint());
+	std::cout << "Client sent " << client_conn.Send((Byte*)"Hello, Server!", 15) << " bytes to " << client_conn.RemoteEndPoint() << '\n';
+
+	assert(client_conn.IsConnecting());
+	std::cout << "Client is attempting to form a connection with the server.\n";
+
+	Byte buf[256];
+	if (server_conn.Receive(buf, sizeof(buf)) > 0)
+		std::cout << "Server recieved '" << buf << "' from " << server_conn.RemoteEndPoint() << '\n';
+
+	assert(server_conn.IsConnected());
+	std::cout << "Server completes connection with the client.\n";
+
+	std::cout << "Server sent " << server_conn.Send((Byte*)"Hello, Client!", 15) << " bytes to " << server_conn.RemoteEndPoint() << '\n';
+
+	if (client_conn.Receive(buf, sizeof(buf)) > 0)
+		std::cout << "Client recieved '" << buf << "' from " << client_conn.RemoteEndPoint() << '\n';
+	
+	assert(client_conn.IsConnected());
+	std::cout << "Client completes connection with the server.\n";
+
+} 
