@@ -2,6 +2,7 @@
 #include "net/Beacon.h"
 #include "net/UdpConnection.h"
 #include <cassert>
+#define PORT_SERVER 25565
 using namespace hvn3;
 using namespace hvn3::Net;
 using namespace hvn3::Net::Sockets;
@@ -50,11 +51,11 @@ void UdpSocketSendAndReceiveExample() {
 void UdpBeaconExample() {
 
 	Socket listener(AddressFamily::InterNetwork, SocketType::Dgram, ProtocolType::Udp);
-	listener.Bind(25565);
+	listener.Bind(PORT_SERVER);
 	listener.SetBlocking(false);
 	listener.SetEnableBroadcast(true);
 
-	Beacon beacon(PORT_ANY, 25565);
+	Beacon beacon(PORT_ANY, PORT_SERVER);
 	beacon.SetMessage("Hello, world!");
 	beacon.SetMessageDelay(1000);
 	beacon.StartBroadcasting();
@@ -69,7 +70,7 @@ void UdpBeaconExample() {
 }
 void UdpConnectionExample() {
 
-	UdpConnection server_conn(25565);
+	UdpConnection server_conn(PORT_SERVER);
 	server_conn.Listen();
 
 	assert(server_conn.IsListening());
