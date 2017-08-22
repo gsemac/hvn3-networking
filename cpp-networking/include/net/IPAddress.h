@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <cstdint>
 
 namespace hvn3 {
 	namespace Net {
@@ -10,7 +11,7 @@ namespace hvn3 {
 		public:
 			IPAddress();
 			IPAddress(unsigned char a, unsigned char b, unsigned char c, unsigned char d);
-			IPAddress(unsigned int address);
+			IPAddress(uint32_t address);
 			IPAddress(const char* address);
 
 			// Returns object representing the address 127.0.0.1.
@@ -21,7 +22,7 @@ namespace hvn3 {
 			static IPAddress Any();
 
 			// Returns integer representation of the address.
-			unsigned int Address() const;
+			uint32_t Address() const;
 
 			bool operator==(const IPAddress& other) const;
 			bool operator!=(const IPAddress& other) const;
@@ -30,7 +31,7 @@ namespace hvn3 {
 			std::string ToString() const;
 
 		private:
-			unsigned int _address;
+			uint32_t _address;
 
 		};
 

@@ -16,7 +16,7 @@ namespace hvn3 {
 			_port = port;
 
 		}
-		IPEndPoint::IPEndPoint(unsigned int address, unsigned short port) {
+		IPEndPoint::IPEndPoint(uint32_t address, unsigned short port) {
 
 			_address = address;
 			_port = port;
@@ -36,7 +36,7 @@ namespace hvn3 {
 			return Net::IPAddress(_address);
 
 		}
-		unsigned int IPEndPoint::Address() const {
+		uint32_t IPEndPoint::Address() const {
 
 			return _address;
 

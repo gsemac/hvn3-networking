@@ -16,7 +16,7 @@ namespace hvn3 {
 			_address = (a << 24) | (b << 16) | (c << 8) | d;
 
 		}
-		IPAddress::IPAddress(unsigned int address) {
+		IPAddress::IPAddress(uint32_t address) {
 
 			_address = address;
 
@@ -45,7 +45,7 @@ namespace hvn3 {
 
 		}
 
-		unsigned int IPAddress::Address() const {
+		uint32_t IPAddress::Address() const {
 
 			return _address;
 

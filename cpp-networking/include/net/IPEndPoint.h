@@ -9,13 +9,13 @@ namespace hvn3 {
 		public:
 			IPEndPoint();
 			IPEndPoint(const IPAddress& address, unsigned short port);
-			IPEndPoint(unsigned int address, unsigned short port);
+			IPEndPoint(uint32_t address, unsigned short port);
 			IPEndPoint(const char* address);
 
 			// Returns IP address of the endpoint.
 			Net::IPAddress IPAddress() const;
 			// Returns integer representation of the address.
-			unsigned int Address() const;
+			uint32_t Address() const;
 			// Returns port number of the endpoint.
 			unsigned short Port() const;
 
@@ -26,7 +26,7 @@ namespace hvn3 {
 			std::string ToString() const;
 
 		private:
-			unsigned int _address;
+			uint32_t _address;
 			unsigned short _port;
 
 		};
