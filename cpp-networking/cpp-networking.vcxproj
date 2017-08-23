@@ -23,6 +23,8 @@
     <ClCompile Include="src\net\Beacon.cc" />
     <ClCompile Include="src\net\IPAddress.cc" />
     <ClCompile Include="src\net\IPEndPoint.cc" />
+    <ClCompile Include="src\net\ReliabilitySystem.cc" />
+    <ClCompile Include="src\net\ReliableUdpConnection.cc" />
     <ClCompile Include="src\net\Socket.cc" />
     <ClCompile Include="src\net\SocketException.cc" />
     <ClCompile Include="src\net\UdpConnection.cc" />
@@ -32,6 +34,10 @@
     <ClInclude Include="include\net\Beacon.h" />
     <ClInclude Include="include\net\IPAddress.h" />
     <ClInclude Include="include\net\IPEndPoint.h" />
+    <ClInclude Include="include\net\Net.h" />
+    <ClInclude Include="include\net\NetUtils.h" />
+    <ClInclude Include="include\net\ReliabilitySystem.h" />
+    <ClInclude Include="include\net\ReliableUdpConnection.h" />
     <ClInclude Include="include\net\Socket.h" />
     <ClInclude Include="include\net\SocketException.h" />
     <ClInclude Include="include\net\UdpConnection.h" />

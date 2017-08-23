@@ -36,6 +36,12 @@
     <ClCompile Include="src\net\UdpConnection.cc">
       <Filter>src\net</Filter>
     </ClCompile>
+    <ClCompile Include="src\net\ReliableUdpConnection.cc">
+      <Filter>src\net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net\ReliabilitySystem.cc">
+      <Filter>src\net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\net\Socket.h">
@@ -57,6 +63,18 @@
       <Filter>include\net</Filter>
     </ClInclude>
     <ClInclude Include="include\net\UdpConnection.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="include\net\ReliableUdpConnection.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="include\net\ReliabilitySystem.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="include\net\Net.h">
+      <Filter>include\net</Filter>
+    </ClInclude>
+    <ClInclude Include="include\net\NetUtils.h">
       <Filter>include\net</Filter>
     </ClInclude>
   </ItemGroup>

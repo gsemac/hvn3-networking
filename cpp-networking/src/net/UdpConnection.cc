@@ -9,11 +9,13 @@ namespace hvn3 {
 
 				_state = IDLE;
 				_mode = NONE;
+				_timeout = 1.0f;
+				_timeout_accumulator = 0.0f;
 
 				_socket.Bind(local_endpoint);
 
 			}
-			UdpConnection::UdpConnection(Port local_port) : 
+			UdpConnection::UdpConnection(Port local_port) :
 				UdpConnection(IPEndPoint(IPAddress::LocalHost(), local_port)) {
 			}
 
@@ -52,30 +54,10 @@ namespace hvn3 {
 				if (bytes_received == 0)
 					return 0;
 
-				if (_mode == SERVER && !IsConnected()) {
+				// Only return the number of bytes if the datagram was sent from the remote endpoint. Otherwise, the datagram is ignored.
+				if (HandleDatagram(sender, data, bytes_received))
+					return bytes_received;
 
-					_state = CONNECTED;
-					_remote_endpoint = sender;
-					OnConnect();
-
-				}
-
-				if (sender == _remote_endpoint) {
-
-					if (_mode == CLIENT && _state == CONNECTING) {
-
-						_state = CONNECTED;
-						OnConnect();
-
-					}
-
-					_timeout_accumulator = 0.0f;
-
-					return length;
-
-				}
-
-				// Don't bother reporting bytes received by endpoints other than the expected remote endpoint.
 				return 0;
 
 			}
@@ -139,10 +121,51 @@ namespace hvn3 {
 			}
 
 
+
 			void UdpConnection::OnConnect() {
 			}
 			void UdpConnection::OnDisconnect() {
 			}
+			bool UdpConnection::HandleDatagram(const IPEndPoint& sender, Byte data[], size_t length) {
+
+				if (_mode == SERVER && IsListening()) {
+
+					_state = CONNECTED;
+					_remote_endpoint = sender;
+					OnConnect();
+
+				}
+
+				if (sender == _remote_endpoint) {
+
+					if (_mode == CLIENT && IsConnecting()) {
+
+						_state = CONNECTED;
+						OnConnect();
+
+					}
+
+					_timeout_accumulator = 0.0f;
+
+					return true;
+
+				}
+
+				return false;
+
+			}
+
+			UdpConnection::CONNECTION_STATE UdpConnection::State() const {
+
+				return _state;
+
+			}
+			UdpConnection::CONNECTION_MODE UdpConnection::Mode() const {
+
+				return _mode;
+
+			}
+
 
 
 			void UdpConnection::_disconnect() {
