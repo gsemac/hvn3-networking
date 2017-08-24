@@ -108,8 +108,13 @@ namespace hvn3 {
 				if (_remote_endpoint == 0)
 					return;
 
-				_timeout_accumulator += dt;
+				// If the timeout is set to 0, the connection should never time out.
+				if (_timeout == 0.0f) {
+					_timeout_accumulator = 0.0f;
+					return;
+				}				
 
+				_timeout_accumulator += dt;
 				if (_timeout_accumulator > _timeout && _state == CONNECTING || _state == CONNECTED) {
 
 					_resetData();
@@ -185,7 +190,7 @@ namespace hvn3 {
 			}
 			void UdpConnection::_resetData() {
 
-				_timeout_accumulator = 0;
+				_timeout_accumulator = 0.0f;
 				_state = IDLE;
 				_mode = NONE;
 				_remote_endpoint = IPEndPoint(0, 0);
