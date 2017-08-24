@@ -66,10 +66,10 @@ namespace hvn3 {
 
 			std::stringstream stream;
 
-			stream << (unsigned int)(unsigned char)(_address >> 24) << ".";
-			stream << (unsigned int)(unsigned char)(_address >> 16) << ".";
-			stream << (unsigned int)(unsigned char)(_address >> 8) << ".";
-			stream << (unsigned int)(unsigned char)(_address);
+			stream << (_address >> 24) << ".";
+			stream << (_address >> 16 & 0xFF) << ".";
+			stream << (_address >> 8 & 0xFF) << ".";
+			stream << (_address & 0xFF);
 
 			return stream.str();
 
