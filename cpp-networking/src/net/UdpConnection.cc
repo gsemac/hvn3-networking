@@ -55,7 +55,7 @@ namespace hvn3 {
 					return 0;
 
 				// Only return the number of bytes if the datagram was sent from the remote endpoint. Otherwise, the datagram is ignored.
-				if (HandleDatagram(sender, data, bytes_received))
+				if (HandleReceivedDatagram(sender, data, bytes_received))
 					return bytes_received;
 
 				return 0;
@@ -126,7 +126,12 @@ namespace hvn3 {
 			}
 			void UdpConnection::OnDisconnect() {
 			}
-			bool UdpConnection::HandleDatagram(const IPEndPoint& sender, Byte data[], size_t length) {
+			void UdpConnection::OnReset() {
+
+				_resetData();
+
+			}
+			bool UdpConnection::HandleReceivedDatagram(const IPEndPoint& sender, Byte data[], size_t length) {
 
 				if (_mode == SERVER && IsListening()) {
 

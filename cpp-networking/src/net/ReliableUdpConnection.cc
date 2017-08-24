@@ -9,6 +9,8 @@ namespace hvn3 {
 				UdpConnection(local_endpoint) {
 
 				_protocol_id = 0;
+				_sequence_numbers_enabled = true;
+				_acks_enabled = true;
 
 			}
 			ReliableUdpConnection::ReliableUdpConnection(Port local_port) :
@@ -32,6 +34,14 @@ namespace hvn3 {
 				if (_protocol_id != 0)
 					total_size += sizeof(_protocol_id);
 
+				if (_sequence_numbers_enabled)
+					total_size += sizeof(ReliabilitySystem::sequence_number_type);
+
+				if (_acks_enabled) {
+					total_size += sizeof(ReliabilitySystem::sequence_number_type);
+					total_size += sizeof(ReliabilitySystem::ack_bits_type);
+				}
+
 				return total_size;
 
 			}
@@ -52,8 +62,10 @@ namespace hvn3 {
 
 				if (bytes_sent <= HeaderSize())
 					return 0;
-				else
-					return bytes_sent - HeaderSize();
+
+				_reliability_system.DatagramSent(bytes_sent);
+
+				return bytes_sent - HeaderSize();
 
 			}
 			size_t ReliableUdpConnection::Receive(Byte data[], size_t length) {
@@ -70,7 +82,7 @@ namespace hvn3 {
 					delete[] datagram;
 					return 0;
 				}
-	
+
 				memcpy(data, datagram + HeaderSize(), bytes_received - HeaderSize());
 
 				delete[] datagram;
@@ -79,8 +91,22 @@ namespace hvn3 {
 
 			}
 
+			void ReliableUdpConnection::OnUpdate(float dt) {
 
-			bool ReliableUdpConnection::HandleDatagram(const IPEndPoint& sender, Byte data[], size_t length) {
+				UdpConnection::OnUpdate(dt);
+				_reliability_system.OnUpdate(dt);
+
+			}
+
+
+
+			void ReliableUdpConnection::OnReset() {
+
+				_reliability_system.Reset();
+				UdpConnection::OnReset();
+
+			}
+			bool ReliableUdpConnection::HandleReceivedDatagram(const IPEndPoint& sender, Byte data[], size_t length) {
 
 				if (length <= HeaderSize())
 					return false;
@@ -91,18 +117,32 @@ namespace hvn3 {
 					return false;
 
 				// If UdpConnection's HandleDatagram accepts the datagram, it will also complete a pending connection.
-				if (!UdpConnection::HandleDatagram(sender, data, length))
+				if (!UdpConnection::HandleReceivedDatagram(sender, data, length))
 					return false;
+
+				if (_sequence_numbers_enabled)
+					_reliability_system.DatagramReceived(header.SequenceNumber, length);
 
 				return true;
 
 			}
 
 
+
 			void ReliableUdpConnection::_writeHeader(Byte* buf) const {
 
+				size_t write_index = 0;
+
 				if (_protocol_id != 0)
-					_write(buf, _protocol_id);
+					write_index += _write(buf + write_index, _protocol_id);
+
+				if (_sequence_numbers_enabled)
+					write_index += _write(buf + write_index, _reliability_system.LocalSequenceNumber());
+
+				if (_acks_enabled) {
+					write_index += _write(buf + write_index, _reliability_system.RemoteSequenceNumber());
+					write_index += _write(buf + write_index, _reliability_system.GetPendingAckBits());
+				}
 
 			}
 			size_t ReliableUdpConnection::_write(Byte* buf, uint32_t value) const {
@@ -118,12 +158,21 @@ namespace hvn3 {
 			ReliableUdpConnection::PacketHeader ReliableUdpConnection::_readHeader(Byte* buf) const {
 
 				PacketHeader header;
+				size_t read_index = 0;
 
 				if (_protocol_id != 0)
-					_read(buf, header.ProtocolId);
+					read_index += _read(buf + read_index, header.ProtocolId);
 				else
 					header.ProtocolId = 0;
 
+				if (_sequence_numbers_enabled)
+					read_index += _read(buf + read_index, header.SequenceNumber);
+
+				if (_acks_enabled) {
+					read_index += _read(buf + read_index, header.Ack);
+					read_index += _read(buf + read_index, header.AckBits);
+				}
+					
 				return header;
 
 			}

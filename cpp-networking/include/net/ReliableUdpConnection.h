@@ -1,5 +1,6 @@
 #pragma once
 #include "net/UdpConnection.h"
+#include "net/ReliabilitySystem.h"
 
 namespace hvn3 {
 	namespace Net {
@@ -9,6 +10,9 @@ namespace hvn3 {
 
 				struct PacketHeader {
 					uint32_t ProtocolId;
+					ReliabilitySystem::sequence_number_type SequenceNumber;
+					ReliabilitySystem::sequence_number_type Ack;
+					ReliabilitySystem::ack_bits_type AckBits;
 				};
 
 			public:
@@ -22,11 +26,18 @@ namespace hvn3 {
 				virtual size_t Send(Byte data[], size_t length) override;
 				virtual size_t Receive(Byte data[], size_t length) override;
 
+				virtual void OnUpdate(float dt) override;
+
 			protected:
-				virtual bool HandleDatagram(const IPEndPoint& sender, Byte data[], size_t length) override;
+				virtual void OnReset() override;
+				virtual bool HandleReceivedDatagram(const IPEndPoint& sender, Byte data[], size_t length) override;
 
 			private:
 				uint32_t _protocol_id;
+				ReliabilitySystem _reliability_system;
+
+				bool _sequence_numbers_enabled;
+				bool _acks_enabled;
 
 				// Writes packet header to the buffer. Assumes that the buffer is large enough to contain the header.
 				void _writeHeader(Byte* buf) const;

@@ -50,8 +50,9 @@ namespace hvn3 {
 			protected:
 				virtual void OnConnect();
 				virtual void OnDisconnect();
+				virtual void OnReset();
 				// Handles a received datagram (accepts connection attempt, etc.). Returns true if the datagram is accepted, and false if it is rejected.
-				virtual bool HandleDatagram(const IPEndPoint& sender, Byte data[], size_t length);
+				virtual bool HandleReceivedDatagram(const IPEndPoint& sender, Byte data[], size_t length);
 
 				CONNECTION_STATE State() const;
 				CONNECTION_MODE Mode() const;
