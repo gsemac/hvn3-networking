@@ -109,8 +109,10 @@ namespace hvn3 {
 					return;
 
 				// If the timeout is set to 0, the connection should never time out.
-				if (_timeout == 0.0f)
+				if (_timeout == 0.0f) {
+					_timeout_accumulator = 0.0f;
 					return;
+				}				
 
 				_timeout_accumulator += dt;
 				if (_timeout_accumulator > _timeout && _state == CONNECTING || _state == CONNECTED) {
